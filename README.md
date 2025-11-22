@@ -1,4 +1,4 @@
-# Catálogo Inteligente de Tintas com IA
+# PaintMatch-AI
 
 <p align="center">
   <a href="https://github.com/syvixor/skills-icons">
@@ -6,134 +6,117 @@
   </a>
 </p>
 
-## 1. Introdução
+## 1. Introduction
 
-Este projeto é um **Assistente Inteligente** que atua como um especialista virtual em tintas da marca Suvinil. O objetivo é ajudar usuários a escolherem o produto ideal com base em suas necessidades e preferências, respondendo a perguntas em linguagem natural e até mesmo gerando simulações visuais da tinta aplicada em um ambiente.
+This project is an Intelligent Assistant acting as a virtual expert on Suvinil paints. The objective is to help users choose the ideal product based on their needs and preferences by answering questions in natural language and even generating visual simulations of the paint applied to an environment.
 
-A solução foi desenvolvida como parte do Desafio Back-end IA da Loomi.
+## 2. Key Features
 
-## 2. Funcionalidades Principais
+* **Complete RESTful API:** Management of users and the paint catalog.
+* **Secure Authenticatio:** Login system with JWT token-based authentication.
+* **AI Assistant (RAG):** A chatbot utilizing Retrieval-Augmented Generation (RAG) to query a PostgreSQL database and provide accurate, contextual recommendations.
+* **Visual Generation with DALL·E 3:** An optional feature where the assistant can generate a realistic image of a room with the recommended color and paint type, if requested by the user.
+* **Interactive Documentation:** Automatic API documentation generation with Swagger UI and ReDoc, provided by FastAPI.
 
-* **API RESTful Completa:** Gerenciamento de usuários e do catálogo de tintas.
-* **Autenticação Segura:** Sistema de login com autenticação baseada em tokens JWT.
-* **Assistente de IA (RAG):** Um chatbot que utiliza **Retrieval-Augmented Generation (RAG)** para buscar informações em um banco de dados PostgreSQL e fornecer recomendações precisas e contextuais.
-* **Geração Visual com DALL·E 3:** Um recurso opcional onde o assistente pode gerar uma imagem realista de um ambiente com a cor e o tipo de tinta recomendados, caso o usuário solicite.
-* **Documentação Interativa:** Geração automática de documentação da API com Swagger UI e ReDoc, fornecida pelo FastAPI.
+## 3. How to Run the Project
 
-## 3. Tecnologias Utilizadas
+With Docker and Docker Compose installed, you can spin up the entire application with a single main command.
 
-O projeto foi construído seguindo os princípios de **Clean Architecture** e **SOLID** para garantir modularidade, testabilidade e manutenibilidade.
-
-* **Linguagem:** Python
-* **Framework Back-end:** FastAPI
-* **Banco de Dados:** PostgreSQL
-* **IA & LangChain:**
-    * **Orquestração:** Agente com Ferramentas (`AgentExecutor`).
-    * **Modelos:** OpenAI GPT-5-nano.
-    * **Geração de Imagem:** OpenAI DALL·E 3.
-    * **Busca de Dados (RAG):** Embeddings da OpenAI com o banco de dados vetorial em memória FAISS.
-* **Containerização:** Docker e Docker Compose para um ambiente de desenvolvimento e produção consistente.
-
-## 4. Como Executar o Projeto
-
-Com Docker e Docker Compose instalados, você pode subir toda a aplicação com um único comando principal.
-
-### Pré-requisitos
+### Prerequisites
 
 * Docker
 * Docker Compose
 
-### Passo a Passo
+### Step-by-Step
 
-**1. Clone o Repositório**
+**1. Clone the Repository**
 ```bash
-git clone https://github.com/Brevex/LOOMI-Backend-AI.git
-cd LOOMI-Backend-AI
+git clone https://github.com/Brevex/PaintMatch-AI.git
+cd PaintMatch-AI
 ```
 
-**2. Configure o Ambiente**
+**2. Configure the Environment**
 ```bash
-# Copie o arquivo de exemplo
+# Copy the example file
 cp .env.example .env
 ```
-### IMPORTANTE
+### IMPORTANT
 
-Lembre-se de adicionar uma API key válida (somente da OpenAI) e de inserir uma senha forte no .env
+Remember to add a valid API key (OpenAI only) and insert a strong password in the .env file.
 
-**3. Suba a Aplicação**
+**3. Start the Application**
 ```bash
 docker compose up --build -d
 ```
 
-**4. Inicialize o Banco de Dados**
+**4. Initialize the Database**
 ```bash
-# 1. Criar as tabelas 'users' e 'paints'
+# 1. Create the 'users' and 'paints' tables
 docker compose exec api python scripts/create_tables.py
 
-# 2. Popular a tabela 'paints' com os dados do arquivo CSV
+# 2. Populate the 'paints' table with CSV data
 docker compose exec api python scripts/load_data.py
 ```
 
-**5. Acesse a API!**
-A aplicação está 100% funcional. Você pode acessar a documentação interativa no seu navegador:
+**5. Access the API!**
+The application is 100% functional. You can access the interactive documentation in your browser:
 
 http://localhost:8000/docs
 
-## 5. Como Testar a Aplicação (Swagger UI /docs)
+## 5. How to Test the Application (Swagger UI /docs)
 
-Após executar a aplicação, você pode testar todo o fluxo do usuário diretamente na documentação interativa.
+After running the application, you can test the entire user flow directly within the interactive documentation.
 
-**Passo 1: Criar um Novo Usuário**
-- Vá para a seção Users e expanda o endpoint POST /api/v1/users
-- Clique em "Try it out".
-- No corpo da requisição (Request body), insira os dados do novo usuário:
+**Step 1: Create a New User**
+- Go to the Users section and expand the endpoint POST /api/v1/users.
+- Click on "Try it out".
+- In the Request body, insert the new user data:
 ```json
 {
-  "email": "test@loomi.com",
+  "email": "test@user.com",
   "password": "Password123!",
-  "full_name": "Usuário de Teste"
+  "full_name": "Test User"
 }
 ```
-- Clique em "Execute". Você deve receber uma resposta 201 Created.
+- Click on "Execute". You should receive a 201 Created response.
 
-**Passo 2: Autorizar o Acesso na Documentação**
-- Clique no botão "Authorize" no canto superior direito da página.
-- Preencha os campos com as credenciais que você acabou de criar:
+**Step 2: Authorize Access in Documentation**
+- Click the "Authorize" button at the top right of the page.
+- Fill in the fields with the credentials you just created:
 ```bash
-username: test@loomi.com
+username: test@user.com
 password: Password123!
 ```
-- Clique em "Authorize" e feche a janela. O cadeado agora deve aparecer fechado.
+- Click "Authorize" and close the window. The padlock icon should now appear closed.
 
 
-**Passo 3: Testar o Assistente de IA**
-- Vá para a seção Chat e expanda o endpoint POST /api/v1/chat.
-- Clique em "Try it out".
-- No corpo da requisição, faça uma pergunta.
+**Step 3: Test the AI Assistant**
+- Go to the Chat section and expand the endpoint POST /api/v1/chat.
+- Click on "Try it out".
+- In the request body, ask a question.
 ```json
 {
-  "question": "Qual a melhor tinta para uma parede externa que seja resistente a água e ao mofo? Mostre em uma imagem como essa tinta ficaria em uma casa"
+  "question": "What is the best paint for an external wall that is water and mold resistant? Show in an image how this paint would look on a house"
 }
 ```
-- Clique em "Execute". A resposta conterá a recomendação do assistente e, no segundo caso, uma image_url com a simulação visual gerada pelo DALL·E 3.
+- Click on "Execute". The response will contain the assistant's recommendation and, in this specific case, an image_url with the visual simulation generated by DALL·E 3.
 
-### IMPORTANTE
+### IMPORTANT
 
-Para poupar recursos, o sistema só irá gerar a imagem se for solicitado explicitamente 
+To save resources, the system will only generate the image if explicitly requested.
 
-## 6. Uso de IA no Desenvolvimento
+## 6. AI Usage in Development
 
-Conforme solicitado no desafio, a IA foi utilizada como uma ferramenta estratégica durante o desenvolvimento.
+As requested in the challenge, AI was used as a strategic tool during development.
 
-* **Ferramenta Principal:** Gemini (Google)
-* **Como foi Usada:** O Gemini atuou como um assistente de programação (pair programmer), ajudando a acelerar o desenvolvimento, depurar erros e refinar a arquitetura.
-* **Motivo da Escolha:** O Gemini, dentre os modelos de LLM, tem como diferencial sua enorme janela de contexto que favorece respostas coesas e favoráveis a tarefas extensas (como programação)
+* **Main Tool:** Gemini (Google)
+* **How it was Used:** Gemini acted as a pair programmer, helping to accelerate development, debug errors, and refine the architecture.
+* **Reason for Choice:** Among LLM models, Gemini stands out for its enormous context window, which favors cohesive responses suitable for extensive tasks (such as programming).
 
-### Exemplos de Prompts Utilizados
+### Examples of Prompts Used
 
 
-* **Escolha da Stack:** "Irei desenvolver um chatbot para recomendação de tintas da marca Suvinil e suas posíveis aplicações. A linguagem adotada será o python 3.13. O banco de dados utilizado será o PostgreSQL. O LLM utilizado será o chatGPT da OpenAi. Utilizaremos RAG para buscar informações em um banco de dados PostgreSQL e fornecer recomendações precisas e contextuais. Seu trabalho será me fornecer uma lista de prós e contras da utilização dos frameworks Django, FastAPI e Flask Para a implementação do backend deste projeto."
-* **Sugestões de melhorias:** "Essa implementação provisória faz múltiplas consultas SQL para cada pergunta. Utilize o RAG + agente para fazer as buscas relevantes localmente através do banco de dados vetorial. Aplique um regex para reconhecer um padrão universal de URL ao invés de um texto fixo e sucetível a falhas"
-* **Geração de scripts auxiliares:** "Utilize a biblioteca pandas e sqlalchemy para realizar a leitura de um arquivo CSV e carregar os dados lidos para um banco de dados. Os dados do CSV devem ser organizados em um dataframe. Faça a leitura do banco de dados para garantir que duplicatas não sejam exportadas e devidamente ignoradas. Crie um objeto do tipo Paint e o adicione à sessão do banco de dados."
-* **Criação de Testes:** "Crie um script que simula o processo de criação e leitura de usuários e tintas diretamente no banco de dados para garantir que as funções crud e security operem como o esperado. O script deverá criar e salvar usuários no banco. Use assert para confirmar se os dados do usuário criado no banco são idênticos aos dados de entrada. Se uma verificação assert falhar, o script para imediatamente deve acusar um erro, indicando que o teste falhou. Verifique se o hash foi aplicado na senha antes de salvar no banco de dados e garantir que a senha original corresponde ao hash salvo. No final, o script removerá os dados inseridos no banco."
-* **Depuração de erros:** Aqui utilizei prompts variados para sugerir correções a erros de execução que envolviam conflitos
+* **Stack Choice:** "I will develop a chatbot for Suvinil paint recommendations and their possible applications. The language adopted will be Python 3.13. The database used will be PostgreSQL. The LLM used will be OpenAI's chatGPT. We will use RAG to search for information in a PostgreSQL database and provide accurate and contextual recommendations. Your job is to provide me with a list of pros and cons of using Django, FastAPI, and Flask frameworks for the backend implementation of this project."
+* **Improvement Suggestions:** "This provisional implementation makes multiple SQL queries for each question. Use RAG + agent to perform relevant searches locally via the vector database. Apply a regex to recognize a universal URL pattern instead of a fixed text susceptible to failure."
+* **Script Generation:** "Use the pandas and sqlalchemy libraries to read a CSV file and load the read data into a database. The CSV data must be organized into a dataframe. Read the database to ensure duplicates are not exported and are properly ignored. Create a Paint type object and add it to the database session.""Use the pandas and sqlalchemy libraries to read a CSV file and load the read data into a database. The CSV data must be organized into a dataframe. Read the database to ensure duplicates are not exported and are properly ignored. Create a Paint type object and add it to the database session."
+* **Test Creation:** "Create a script that simulates the process of creating and reading users and paints directly in the database to ensure that crud and security functions operate as expected. The script must create and save users in the database. Use assert to confirm if the user data created in the database is identical to the input data. If an assert verification fails, the script must immediately throw an error indicating the test failed. Verify if the hash was applied to the password before saving to the database and ensure the original password corresponds to the saved hash. In the end, the script will remove the data inserted into the database."
