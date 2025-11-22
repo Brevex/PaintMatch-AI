@@ -42,7 +42,7 @@ cp .env.example .env
 ```
 ### IMPORTANT
 
-Remember to add a valid API key (OpenAI only) and insert a strong password in the .env file.
+Remember to add a valid API key (OpenAI only) and insert a strong password in the `.env` file.
 
 **3. Start the Application**
 ```bash
@@ -59,6 +59,7 @@ docker compose exec api python scripts/load_data.py
 ```
 
 **5. Access the API!**
+
 The application is 100% functional. You can access the interactive documentation in your browser:
 
 http://localhost:8000/docs
@@ -68,7 +69,7 @@ http://localhost:8000/docs
 After running the application, you can test the entire user flow directly within the interactive documentation.
 
 **Step 1: Create a New User**
-- Go to the Users section and expand the endpoint POST /api/v1/users.
+- Go to the Users section and expand the endpoint POST `/api/v1/users`.
 - Click on "Try it out".
 - In the Request body, insert the new user data:
 ```json
@@ -91,7 +92,7 @@ password: Password123!
 
 
 **Step 3: Test the AI Assistant**
-- Go to the Chat section and expand the endpoint POST /api/v1/chat.
+- Go to the Chat section and expand the endpoint POST `/api/v1/chat`.
 - Click on "Try it out".
 - In the request body, ask a question.
 ```json
