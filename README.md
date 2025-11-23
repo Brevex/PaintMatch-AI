@@ -64,7 +64,7 @@ The application is 100% functional. You can access the interactive documentation
 
 http://localhost:8000/docs
 
-## 5. How to Test the Application (Swagger UI /docs)
+## 4. How to Test the Application (Swagger UI /docs)
 
 After running the application, you can test the entire user flow directly within the interactive documentation.
 
@@ -106,7 +106,7 @@ password: Password123!
 
 To save resources, the system will only generate the image if explicitly requested.
 
-## 6. AI Usage in Development
+## 5. AI Usage in Development
 
 As requested in the challenge, AI was used as a strategic tool during development.
 
