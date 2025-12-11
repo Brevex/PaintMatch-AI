@@ -2,7 +2,12 @@
 # Run: pre-commit install
 # Manual run: pre-commit run --all-files
 
+exclude: '^uv\.lock$'
+
 repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
   # Ruff - extremely fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2
