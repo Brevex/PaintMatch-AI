@@ -4,50 +4,42 @@ Repositório de tintas usando SQLAlchemy.
 Implementa a interface PaintRepository para acesso ao banco de dados.
 """
 
-import pandas as pd
 from sqlalchemy import Engine
+from sqlalchemy.orm import Session
 
 from app.core.ports import PaintData
 from app.db.session import engine as default_engine
+from app.models.paint import Paint
 
 
 class SqlAlchemyPaintRepository:
     """Implementação de PaintRepository usando SQLAlchemy."""
 
     def __init__(self, db_engine: Engine | None = None) -> None:
-        """
-        Inicializa o repositório.
-
-        Args:
-            db_engine: Engine SQLAlchemy. Usa engine padrão se não fornecida.
-        """
+        """Inicializa o repositório."""
         self._engine = db_engine or default_engine
 
     def get_all_paints(self) -> list[PaintData]:
-        """
-        Retorna todas as tintas do banco de dados.
-
-        Returns:
-            Lista de PaintData com todas as tintas disponíveis
-        """
+        """Retorna todas as tintas do banco de dados usando SQLAlchemy nativo."""
         try:
-            df = pd.read_sql("SELECT * FROM paints", self._engine)
+            with Session(self._engine) as session:
+                paints = session.query(Paint).all()
 
-            if df.empty:
-                return []
+                if not paints:
+                    return []
 
-            return [
-                PaintData(
-                    name=row["name"],
-                    color=row["color"],
-                    surface_type=row.get("surface_type"),
-                    environment=row.get("environment"),
-                    finish_type=row.get("finish_type"),
-                    features=row.get("features"),
-                    line=row.get("line"),
-                )
-                for _, row in df.iterrows()
-            ]
+                return [
+                    PaintData(
+                        name=paint.name,
+                        color=paint.color,
+                        surface_type=paint.surface_type,
+                        environment=paint.environment,
+                        finish_type=paint.finish_type,
+                        features=paint.features,
+                        line=paint.line,
+                    )
+                    for paint in paints
+                ]
 
         except Exception as e:
             print(

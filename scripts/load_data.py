@@ -1,3 +1,5 @@
+"""Script para carregar dados de tintas do CSV para o banco de dados."""
+
 import os
 import sys
 
@@ -11,31 +13,37 @@ from app.models.paint import Paint
 
 
 def load_data_from_csv(db: Session, csv_path: str):
-    """
-    Lê dados de um arquivo CSV e os insere na tabela de tintas, evitando duplicatas.
-    """
+    """Lê dados de um arquivo CSV e os insere na tabela de tintas usando bulk insert."""
     try:
         df = pd.read_csv(csv_path)
         print(f"Lendo {len(df)} registros do arquivo CSV...")
 
-        for _, row in df.iterrows():
-            paint_exists = db.query(Paint).filter(Paint.name == row["Nome da tinta"]).first()
-            if not paint_exists:
-                db_paint = Paint(
-                    name=row["Nome da tinta"],
-                    color=row["Cor"],
-                    surface_type=row.get("Tipo de superfície indicada"),
-                    environment=row.get("Ambiente"),
-                    finish_type=row.get("Tipo de acabamento"),
-                    features=row.get("Features relevantes"),
-                    line=row.get("Linha"),
-                )
-                db.add(db_paint)
-            else:
-                print(f"Tinta '{row['Nome da tinta']}' já existe. Pulando.")
+        existing_names = {name for (name,) in db.query(Paint.name).all()}
 
-        db.commit()
-        print("Dados carregados com sucesso no banco de dados!")
+        new_paints = []
+        for record in df.to_dict("records"):
+            name = record["Nome da tinta"]
+            if name not in existing_names:
+                new_paints.append(
+                    Paint(
+                        name=name,
+                        color=record["Cor"],
+                        surface_type=record.get("Tipo de superfície indicada"),
+                        environment=record.get("Ambiente"),
+                        finish_type=record.get("Tipo de acabamento"),
+                        features=record.get("Features relevantes"),
+                        line=record.get("Linha"),
+                    )
+                )
+            else:
+                print(f"Tinta '{name}' já existe. Pulando.")
+
+        if new_paints:
+            db.bulk_save_objects(new_paints)
+            db.commit()
+            print(f"Inseridos {len(new_paints)} registros novos!")
+        else:
+            print("Nenhum registro novo para inserir.")
 
     except FileNotFoundError:
         print(f"Erro: O arquivo {csv_path} não foi encontrado.")

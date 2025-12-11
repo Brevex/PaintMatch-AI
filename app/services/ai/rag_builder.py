@@ -5,6 +5,9 @@ Responsabilidade única: construir e configurar a cadeia RAG
 para recuperação e geração de recomendações de tintas.
 """
 
+import hashlib
+from pathlib import Path
+
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -32,40 +35,61 @@ def format_docs(docs: list) -> str:
 class RAGChainBuilder:
     """Construtor de cadeias RAG para recomendação de tintas."""
 
-    def __init__(self, config: RAGConfig | None = None) -> None:
-        """
-        Inicializa o construtor.
+    CACHE_DIR = Path(__file__).parent.parent.parent / "data" / "vector_cache"
 
-        Args:
-            config: Configuração RAG. Usa padrão se não fornecida.
-        """
+    def __init__(self, config: RAGConfig | None = None) -> None:
+        """Inicializa o construtor com cache de vector store."""
         self._config = config or RAGConfig.default()
+        self.CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    def _compute_data_hash(self, paints: list[PaintData]) -> str:
+        """Computa hash dos dados para detectar mudanças."""
+        content = "".join(p.to_document_text() for p in paints)
+        return hashlib.md5(content.encode()).hexdigest()
+
+    def _get_cache_path(self, data_hash: str) -> Path:
+        """Retorna o caminho do cache para um dado hash."""
+        return self.CACHE_DIR / f"faiss_index_{data_hash}"
 
     def build(self, paints: list[PaintData]) -> object | None:
         """
         Constrói a cadeia RAG a partir dos dados de tintas.
 
-        Args:
-            paints: Lista de dados de tintas para indexar
-
-        Returns:
-            Cadeia RAG pronta para invoke, ou None se não houver dados
+        Utiliza cache em disco para evitar reconstrução do vector store
+        quando os dados não mudaram.
         """
         if not paints:
             return None
 
         try:
-            documents = [paint.to_document_text() for paint in paints]
-            metadatas = [self._paint_to_metadata(paint) for paint in paints]
+            data_hash = self._compute_data_hash(paints)
+            cache_path = self._get_cache_path(data_hash)
 
-            vector_store = FAISS.from_texts(
-                documents,
-                embedding=GoogleGenerativeAIEmbeddings(
-                    model=self._config.embedding.model_name,
-                    google_api_key=settings.GOOGLE_API_KEY,
-                ),
-                metadatas=metadatas,
+            embedding_model = GoogleGenerativeAIEmbeddings(
+                model=self._config.embedding.model_name,
+                google_api_key=settings.GOOGLE_API_KEY,
             )
+
+            if cache_path.exists():
+                print(f"Carregando vector store do cache: {cache_path}")
+                vector_store = FAISS.load_local(
+                    str(cache_path),
+                    embedding_model,
+                    allow_dangerous_deserialization=True,
+                )
+            else:
+                print("Construindo novo vector store...")
+                documents = [paint.to_document_text() for paint in paints]
+                metadatas = [self._paint_to_metadata(paint) for paint in paints]
+
+                vector_store = FAISS.from_texts(
+                    documents,
+                    embedding=embedding_model,
+                    metadatas=metadatas,
+                )
+                vector_store.save_local(str(cache_path))
+                print(f"Vector store salvo em: {cache_path}")
+
             retriever = vector_store.as_retriever()
 
             prompt = ChatPromptTemplate.from_template(PROMPTS.RAG_TEMPLATE)

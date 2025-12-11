@@ -14,6 +14,8 @@ from app.services.ai.image_generator import GeminiImageGenerator
 from app.services.ai.paint_repository import SqlAlchemyPaintRepository
 from app.services.ai.rag_builder import RAGChainBuilder
 
+_URL_PATTERN = re.compile(r"https?://[^\s)]+")
+
 
 class ChatService:
     """
@@ -29,14 +31,7 @@ class ChatService:
         paint_repository: SqlAlchemyPaintRepository | None = None,
         image_generator: GeminiImageGenerator | None = None,
     ) -> None:
-        """
-        Inicializa o serviço de chat.
-
-        Args:
-            config: Configuração de IA. Usa padrão se não fornecida.
-            paint_repository: Repositório de tintas. Cria novo se não fornecido.
-            image_generator: Gerador de imagens. Cria novo se não fornecido.
-        """
+        """Inicializa o serviço de chat."""
         print("Iniciando o ChatService com Agente Gemini...")
 
         self._config = config or DEFAULT_AI_CONFIG
@@ -76,15 +71,7 @@ class ChatService:
         )
 
     def get_ai_response(self, query: str) -> dict:
-        """
-        Processa uma consulta e retorna a resposta do assistente.
-
-        Args:
-            query: Pergunta do usuário
-
-        Returns:
-            Dicionário com 'answer' e opcionalmente 'image_url'
-        """
+        """Processa uma consulta e retorna a resposta do assistente."""
         if not self.agent_executor:
             self._agent_executor = self._build_agent()
             if not self.agent_executor:
@@ -110,21 +97,10 @@ class ChatService:
 
     def _extract_url(self, text: str) -> str | None:
         """Extrai URL de uma resposta, se presente."""
-        match = re.search(r"https?://[^\s)]+", text)
+        match = _URL_PATTERN.search(text)
         return match.group(0) if match else None
 
 
 def create_chat_service(config: AIConfig | None = None) -> ChatService:
-    """
-    Factory function para criar instâncias de ChatService.
-
-    Args:
-        config: Configuração opcional de IA
-
-    Returns:
-        Instância configurada de ChatService
-    """
+    """Factory function para criar instâncias de ChatService."""
     return ChatService(config=config)
-
-
-chat_service_instance = ChatService()
