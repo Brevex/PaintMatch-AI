@@ -7,9 +7,9 @@ Implementa a interface PaintRepository para acesso ao banco de dados.
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from app.core.ports import PaintData
-from app.db.session import engine as default_engine
-from app.models.paint import Paint
+from app.core import PaintData
+from app.db import engine as default_engine
+from app.models import Paint
 
 
 class SqlAlchemyPaintRepository:

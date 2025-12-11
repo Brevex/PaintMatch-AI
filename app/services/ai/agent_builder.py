@@ -5,14 +5,16 @@ Responsabilidade única: construir e configurar o agente
 que orquestra as ferramentas de recomendação e geração de imagens.
 """
 
-from langchain import hub
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain.tools import Tool
-from langchain_google_genai import ChatGoogleGenerativeAI
+from __future__ import annotations
 
-from app.core.config import settings
-from app.core.llm_config import LLMConfig
-from app.core.prompts import PROMPTS
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from langchain.agents import AgentExecutor
+    from langchain.tools import Tool
+    from langchain_google_genai import ChatGoogleGenerativeAI
+
+from app.core import PROMPTS, LLMConfig, settings
 
 
 class AgentBuilder:
@@ -47,6 +49,10 @@ class AgentBuilder:
             return None
 
         tools = self._create_tools(rag_chain_invoke, image_generator_func)
+
+        from langchain import hub
+        from langchain.agents import AgentExecutor, create_react_agent
+
         prompt = hub.pull("hwchase17/react")
         llm = self._create_llm()
 
@@ -59,6 +65,8 @@ class AgentBuilder:
         image_generator_func: callable,
     ) -> list[Tool]:
         """Cria a lista de ferramentas do agente."""
+        from langchain.tools import Tool
+
         return [
             Tool(
                 name="RecomendadorDeTintas",
@@ -74,6 +82,8 @@ class AgentBuilder:
 
     def _create_llm(self) -> ChatGoogleGenerativeAI:
         """Cria a instância do LLM do agente."""
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
         return ChatGoogleGenerativeAI(
             model=self._config.model_name,
             temperature=self._config.temperature,

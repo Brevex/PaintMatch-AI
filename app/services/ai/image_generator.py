@@ -6,10 +6,7 @@ Responsabilidade única: gerar imagens baseadas em descrições textuais.
 
 import uuid
 
-from google import genai
-
-from app.core.config import settings
-from app.core.llm_config import ImageGenerationConfig
+from app.core import ImageGenerationConfig, settings
 
 
 class GeminiImageGenerator:
@@ -22,6 +19,8 @@ class GeminiImageGenerator:
         Args:
             config: Configuração para geração. Usa padrão se não fornecida.
         """
+        from google import genai
+
         self._config = config or ImageGenerationConfig()
         self._client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 

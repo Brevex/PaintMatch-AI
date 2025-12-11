@@ -8,16 +8,11 @@ para recuperação e geração de recomendações de tintas.
 import hashlib
 from pathlib import Path
 
-from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
-from app.core.config import settings
-from app.core.llm_config import RAGConfig
-from app.core.ports import PaintData
-from app.core.prompts import PROMPTS
+from app.core import PROMPTS, PaintData, RAGConfig, settings
 
 
 def format_docs(docs: list) -> str:
@@ -65,6 +60,8 @@ class RAGChainBuilder:
             data_hash = self._compute_data_hash(paints)
             cache_path = self._get_cache_path(data_hash)
 
+            from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
             embedding_model = GoogleGenerativeAIEmbeddings(
                 model=self._config.embedding.model_name,
                 google_api_key=settings.GOOGLE_API_KEY,
@@ -72,6 +69,8 @@ class RAGChainBuilder:
 
             if cache_path.exists():
                 print(f"Carregando vector store do cache: {cache_path}")
+                from langchain_community.vectorstores import FAISS
+
                 vector_store = FAISS.load_local(
                     str(cache_path),
                     embedding_model,
@@ -81,6 +80,7 @@ class RAGChainBuilder:
                 print("Construindo novo vector store...")
                 documents = [paint.to_document_text() for paint in paints]
                 metadatas = [self._paint_to_metadata(paint) for paint in paints]
+                from langchain_community.vectorstores import FAISS
 
                 vector_store = FAISS.from_texts(
                     documents,
@@ -93,6 +93,8 @@ class RAGChainBuilder:
             retriever = vector_store.as_retriever()
 
             prompt = ChatPromptTemplate.from_template(PROMPTS.RAG_TEMPLATE)
+            from langchain_google_genai import ChatGoogleGenerativeAI
+
             llm = ChatGoogleGenerativeAI(
                 model=self._config.llm.model_name,
                 temperature=self._config.llm.temperature,

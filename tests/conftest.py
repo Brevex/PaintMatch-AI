@@ -13,16 +13,16 @@ os.environ.setdefault("GOOGLE_API_KEY", "test-api-key")
 
 import pytest
 
-from app.core.llm_config import (
+from app.core import (
     AIConfig,
+    ChatResponse,
     EmbeddingConfig,
     ImageGenerationConfig,
     LLMConfig,
+    PaintData,
     RAGConfig,
 )
-from app.core.ports import ChatResponse, PaintData
-from app.schemas.paint import PaintCreate
-from app.schemas.user import UserCreate
+from app.schemas import PaintCreate, UserCreate
 
 # =============================================================================
 # PaintData Fixtures

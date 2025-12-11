@@ -5,9 +5,9 @@ Tests RAGChainBuilder class and format_docs function following
 AAA pattern (Arrange-Act-Assert) and FIRST principles.
 """
 
-from app.core.llm_config import RAGConfig
-from app.core.ports import PaintData
-from app.services.ai.rag_builder import RAGChainBuilder, format_docs
+from app.core import PaintData, RAGConfig
+from app.services.ai import RAGChainBuilder
+from app.services.ai.rag_builder import format_docs
 
 
 class TestFormatDocs:

@@ -5,8 +5,8 @@ Tests GeminiImageGenerator class following
 AAA pattern (Arrange-Act-Assert) and FIRST principles.
 """
 
-from app.core.llm_config import ImageGenerationConfig
-from app.services.ai.image_generator import GeminiImageGenerator
+from app.core import ImageGenerationConfig
+from app.services.ai import GeminiImageGenerator
 
 
 class TestGeminiImageGeneratorPromptBuilding:

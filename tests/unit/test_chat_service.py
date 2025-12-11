@@ -8,7 +8,7 @@ Uses mocks to isolate from external dependencies.
 
 from unittest.mock import MagicMock, patch
 
-from app.services.chat_service import ChatService, create_chat_service
+from app.services import ChatService, create_chat_service
 
 
 class TestChatServiceURLExtraction:

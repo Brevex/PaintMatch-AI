@@ -9,13 +9,13 @@ from datetime import timedelta
 
 from jose import jwt
 
-from app.core.config import settings
-from app.core.security import (
-    ALGORITHM,
+from app.core import (
     create_access_token,
     hash_password,
+    settings,
     verify_password,
 )
+from app.core.security import ALGORITHM
 
 
 class TestHashPassword:

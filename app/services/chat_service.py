@@ -7,12 +7,13 @@ sobre tintas e gerar visualizações quando solicitado.
 
 import re
 
-from app.core.llm_config import DEFAULT_AI_CONFIG, AIConfig
-from app.core.ports import ChatResponse
-from app.services.ai.agent_builder import AgentBuilder
-from app.services.ai.image_generator import GeminiImageGenerator
-from app.services.ai.paint_repository import SqlAlchemyPaintRepository
-from app.services.ai.rag_builder import RAGChainBuilder
+from app.core import DEFAULT_AI_CONFIG, AIConfig, ChatResponse
+from app.services.ai import (
+    AgentBuilder,
+    GeminiImageGenerator,
+    RAGChainBuilder,
+    SqlAlchemyPaintRepository,
+)
 
 _URL_PATTERN = re.compile(r"https?://[^\s)]+")
 

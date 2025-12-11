@@ -7,7 +7,7 @@ AAA pattern (Arrange-Act-Assert) and FIRST principles.
 
 import pytest
 
-from app.core.llm_config import (
+from app.core import (
     AIConfig,
     EmbeddingConfig,
     ImageGenerationConfig,
