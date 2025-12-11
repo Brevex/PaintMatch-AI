@@ -1,15 +1,14 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class PaintBase(BaseModel):
     name: str
     color: str
-    surface_type: Optional[str] = None
-    environment: Optional[str] = None
-    finish_type: Optional[str] = None
-    features: Optional[str] = None
-    line: Optional[str] = None
+    surface_type: str | None = None
+    environment: str | None = None
+    finish_type: str | None = None
+    features: str | None = None
+    line: str | None = None
 
 
 class PaintCreate(PaintBase):
@@ -17,12 +16,11 @@ class PaintCreate(PaintBase):
 
 
 class PaintUpdate(PaintBase):
-    name: Optional[str] = None
-    color: Optional[str] = None
+    name: str | None = None
+    color: str | None = None
 
 
 class Paint(PaintBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

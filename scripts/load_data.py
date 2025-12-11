@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 import pandas as pd
 from sqlalchemy.orm import Session
 
@@ -18,18 +19,16 @@ def load_data_from_csv(db: Session, csv_path: str):
         print(f"Lendo {len(df)} registros do arquivo CSV...")
 
         for _, row in df.iterrows():
-            paint_exists = (
-                db.query(Paint).filter(Paint.name == row["Nome da tinta"]).first()
-            )
+            paint_exists = db.query(Paint).filter(Paint.name == row["Nome da tinta"]).first()
             if not paint_exists:
                 db_paint = Paint(
                     name=row["Nome da tinta"],
                     color=row["Cor"],
                     surface_type=row.get("Tipo de superfície indicada"),
-                    environment=row.get("Ambiente (interno ou externo)"),
+                    environment=row.get("Ambiente"),
                     finish_type=row.get("Tipo de acabamento"),
-                    features=row.get("Features relevantes (ex: lavável, anti-mofo)"),
-                    line=row.get("Linha (Premium, Standard etc.)"),
+                    features=row.get("Features relevantes"),
+                    line=row.get("Linha"),
                 )
                 db.add(db_paint)
             else:

@@ -1,0 +1,99 @@
+"""
+Construtor da RAG Chain.
+
+Responsabilidade única: construir e configurar a cadeia RAG
+para recuperação e geração de recomendações de tintas.
+"""
+
+from langchain_community.vectorstores import FAISS
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+
+from app.core.config import settings
+from app.core.llm_config import RAGConfig
+from app.core.ports import PaintData
+from app.core.prompts import PROMPTS
+
+
+def format_docs(docs: list) -> str:
+    """Formata os documentos recuperados para serem enviados ao prompt."""
+    return "\n\n".join(
+        f"Nome da Tinta: {doc.metadata.get('name', 'N/A')}\n"
+        f"Cor: {doc.metadata.get('color', 'N/A')}\n"
+        f"Características: {doc.metadata.get('features', 'N/A')}\n"
+        f"Ambiente: {doc.metadata.get('environment', 'N/A')}\n"
+        f"Acabamento: {doc.metadata.get('finish_type', 'N/A')}"
+        for doc in docs
+    )
+
+
+class RAGChainBuilder:
+    """Construtor de cadeias RAG para recomendação de tintas."""
+
+    def __init__(self, config: RAGConfig | None = None) -> None:
+        """
+        Inicializa o construtor.
+
+        Args:
+            config: Configuração RAG. Usa padrão se não fornecida.
+        """
+        self._config = config or RAGConfig.default()
+
+    def build(self, paints: list[PaintData]) -> object | None:
+        """
+        Constrói a cadeia RAG a partir dos dados de tintas.
+
+        Args:
+            paints: Lista de dados de tintas para indexar
+
+        Returns:
+            Cadeia RAG pronta para invoke, ou None se não houver dados
+        """
+        if not paints:
+            return None
+
+        try:
+            documents = [paint.to_document_text() for paint in paints]
+            metadatas = [self._paint_to_metadata(paint) for paint in paints]
+
+            vector_store = FAISS.from_texts(
+                documents,
+                embedding=GoogleGenerativeAIEmbeddings(
+                    model=self._config.embedding.model_name,
+                    google_api_key=settings.GOOGLE_API_KEY,
+                ),
+                metadatas=metadatas,
+            )
+            retriever = vector_store.as_retriever()
+
+            prompt = ChatPromptTemplate.from_template(PROMPTS.RAG_TEMPLATE)
+            llm = ChatGoogleGenerativeAI(
+                model=self._config.llm.model_name,
+                temperature=self._config.llm.temperature,
+                google_api_key=settings.GOOGLE_API_KEY,
+            )
+
+            return (
+                {"context": retriever | format_docs, "question": RunnablePassthrough()}
+                | prompt
+                | llm
+                | StrOutputParser()
+            )
+
+        except Exception as e:
+            print(f"Erro ao criar base vetorial (RAG): {e}")
+            return None
+
+    def _paint_to_metadata(self, paint: PaintData) -> dict:
+        """Converte PaintData para dicionário de metadados."""
+        return {
+            "name": paint.name,
+            "color": paint.color,
+            "surface_type": paint.surface_type,
+            "environment": paint.environment,
+            "finish_type": paint.finish_type,
+            "features": paint.features,
+            "line": paint.line,
+        }

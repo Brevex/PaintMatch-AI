@@ -1,11 +1,16 @@
 from fastapi import FastAPI
-from app.api.v1.endpoints import users, auth, paints, chat
+from fastapi.staticfiles import StaticFiles
+
+from app.api.v1.endpoints import auth, chat, paints, users
+from app.core.config import settings
 
 app = FastAPI(
     title="Catálogo Inteligente de Tintas com IA",
     description="API para um assistente virtual especialista em tintas Suvinil.",
     version="1.0.0",
 )
+
+app.mount("/static", StaticFiles(directory=str(settings.static_dir)), name="static")
 
 app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])

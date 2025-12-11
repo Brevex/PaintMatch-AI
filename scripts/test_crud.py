@@ -1,14 +1,15 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.orm import Session
-from app.db.session import SessionLocal
-from app.schemas.user import UserCreate
-from app.schemas.paint import PaintCreate
-from app.crud import crud_user, crud_paint
+
 from app.core.security import verify_password
+from app.crud import crud_paint, crud_user
+from app.db.session import SessionLocal
+from app.schemas.paint import PaintCreate
+from app.schemas.user import UserCreate
 
 
 def test_crud_operations():
@@ -37,9 +38,7 @@ def test_crud_operations():
         print("Senha foi hasheada com sucesso.")
 
         print("[TESTE] Verificando se a senha corresponde ao hash...")
-        is_password_correct = verify_password(
-            user_in.password, created_user.hashed_password
-        )
+        is_password_correct = verify_password(user_in.password, created_user.hashed_password)
         assert is_password_correct
         print("Verificação de senha bem-sucedida.")
 

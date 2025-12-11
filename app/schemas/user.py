@@ -1,10 +1,9 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    full_name: Optional[str] = None
+    full_name: str | None = None
 
 
 class UserCreate(UserBase):
@@ -12,7 +11,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    password: Optional[str] = None
+    password: str | None = None
 
 
 class User(UserBase):
@@ -20,5 +19,4 @@ class User(UserBase):
     is_active: bool
     is_superuser: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

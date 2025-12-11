@@ -4,6 +4,8 @@
 venv/
 env/
 
+.ruff_cache/
+
 __pycache__/
 *.pyc
 *.pyo
@@ -20,3 +22,5 @@ __pycache__/
 build/
 dist/
 *.egg-info/
+
+app/static/images/
