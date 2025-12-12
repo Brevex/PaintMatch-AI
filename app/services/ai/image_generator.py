@@ -6,7 +6,9 @@ Responsabilidade única: gerar imagens baseadas em descrições textuais.
 
 import uuid
 
-from app.core import ImageGenerationConfig, settings
+from app.core import ImageGenerationConfig, ImageGenerationError, get_logger, settings
+
+logger = get_logger(__name__)
 
 
 class GeminiImageGenerator:
@@ -35,7 +37,7 @@ class GeminiImageGenerator:
             URL da imagem gerada ou mensagem de erro
         """
         try:
-            print(f"Gerando imagem com a descrição: {description}")
+            logger.info("Generating image with description: %s", description)
 
             prompt = self._build_prompt(description)
 
@@ -46,7 +48,7 @@ class GeminiImageGenerator:
 
             for part in response.parts:
                 if part.text is not None:
-                    print(part.text)
+                    logger.debug("Response text: %s", part.text)
                 elif part.inline_data is not None:
                     image = part.as_image()
 
@@ -56,15 +58,18 @@ class GeminiImageGenerator:
                     image.save(str(image_path))
 
                     image_url = f"{settings.BASE_URL}/static/images/{image_filename}"
-                    print(f"Imagem salva em: {image_path}")
-                    print(f"URL da imagem: {image_url}")
+                    logger.info("Image saved at: %s", image_path)
+                    logger.info("Image URL: %s", image_url)
 
                     return f"Imagem gerada com sucesso! Você pode visualizá-la aqui: {image_url}"
 
             return "Não foi possível gerar a imagem."
 
+        except OSError as e:
+            logger.exception("File I/O error while saving image: %s", e)
+            raise ImageGenerationError(f"Failed to save image: {e}") from e
         except Exception as e:
-            print(f"Erro ao gerar imagem com Gemini: {e}")
+            logger.exception("Error generating image with Gemini: %s", e)
             return f"Não foi possível gerar a imagem: {e}"
 
     def _build_prompt(self, description: str) -> str:

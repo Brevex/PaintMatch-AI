@@ -5,7 +5,8 @@ Tests domain data classes and their methods following
 AAA pattern (Arrange-Act-Assert) and FIRST principles.
 """
 
-from app.core import ChatResponse, PaintData
+from app.core import PaintData
+from app.schemas.chat import ChatResponse
 
 
 class TestPaintData:

@@ -5,7 +5,7 @@ from functools import lru_cache
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import JWTError, jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
@@ -25,15 +25,13 @@ def get_chat_service() -> ChatService:
     return create_chat_service()
 
 
-def get_db() -> Generator:
+def get_db() -> Generator[Session]:
     """Função geradora para injeção de dependência da sessão do banco de dados."""
-    db = None
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         yield db
     finally:
-        if db:
-            db.close()
+        db.close()
 
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)) -> User:
@@ -47,15 +45,14 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except (jwt.JWTError, ValidationError):
+    except (JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         ) from None
 
-    user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.email == token_data.email).first()
 
     if user is None:
         raise HTTPException(

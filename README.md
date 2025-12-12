@@ -20,6 +20,17 @@ This project is an Intelligent Assistant acting as a virtual expert on Suvinil p
 
 ## 3. How to Run the Project
 
+Execute os seguintes comandos para validar:
+
+### Regenerar lockfile (se ainda não executado)
+uv lock
+### Instalar dependências
+uv sync
+### Verificar lint
+uv run ruff check app/
+### Executar testes
+uv run pytest tests/ -v
+
 With Docker and Docker Compose installed, you can spin up the entire application with a single main command.
 
 ### Prerequisites

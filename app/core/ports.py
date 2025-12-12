@@ -71,15 +71,3 @@ class VectorStoreBuilder(Protocol):
             Objeto vector store com método as_retriever()
         """
         ...
-
-
-@dataclass
-class ChatResponse:
-    """Resposta do serviço de chat."""
-
-    answer: str
-    image_url: str | None = None
-
-    def to_dict(self) -> dict:
-        """Converte para dicionário."""
-        return {"answer": self.answer, "image_url": self.image_url}

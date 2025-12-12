@@ -7,7 +7,15 @@ sobre tintas e gerar visualizações quando solicitado.
 
 import re
 
-from app.core import DEFAULT_AI_CONFIG, AIConfig, ChatResponse
+from app.core import (
+    DEFAULT_AI_CONFIG,
+    AIConfig,
+    AIServiceError,
+    ImageGenerator,
+    PaintRepository,
+    get_logger,
+)
+from app.schemas.chat import ChatResponse
 from app.services.ai import (
     AgentBuilder,
     GeminiImageGenerator,
@@ -16,6 +24,7 @@ from app.services.ai import (
 )
 
 _URL_PATTERN = re.compile(r"https?://[^\s)]+")
+logger = get_logger(__name__)
 
 
 class ChatService:
@@ -29,21 +38,21 @@ class ChatService:
     def __init__(
         self,
         config: AIConfig | None = None,
-        paint_repository: SqlAlchemyPaintRepository | None = None,
-        image_generator: GeminiImageGenerator | None = None,
+        paint_repository: PaintRepository | None = None,
+        image_generator: ImageGenerator | None = None,
     ) -> None:
         """Inicializa o serviço de chat."""
-        print("Iniciando o ChatService com Agente Gemini...")
+        logger.info("Initializing ChatService with Gemini Agent...")
 
         self._config = config or DEFAULT_AI_CONFIG
-        self._paint_repository = paint_repository or SqlAlchemyPaintRepository()
-        self._image_generator = image_generator or GeminiImageGenerator(
+        self._paint_repository: PaintRepository = paint_repository or SqlAlchemyPaintRepository()
+        self._image_generator: ImageGenerator = image_generator or GeminiImageGenerator(
             self._config.image_generation
         )
 
         self._agent_executor = None
 
-        print("ChatService inicializado (Agente será carregado sob demanda).")
+        logger.info("ChatService initialized (Agent will be loaded on demand)")
 
     @property
     def agent_executor(self):
@@ -57,7 +66,7 @@ class ChatService:
         paints = self._paint_repository.get_all_paints()
 
         if not paints:
-            print("Aviso: Nenhuma tinta disponível no banco de dados.")
+            logger.warning("No paints available in database")
             return None
 
         rag_builder = RAGChainBuilder(self._config.rag)
@@ -92,8 +101,13 @@ class ChatService:
 
             return ChatResponse(answer=output_text, image_url=image_url).to_dict()
 
+        except AIServiceError:
+            raise
+        except (KeyError, ValueError, TypeError) as e:
+            logger.exception("Data processing error: %s", e)
+            return ChatResponse(answer="Erro ao processar os dados da resposta.").to_dict()
         except Exception as e:
-            print(f"Erro ao invocar o agente: {e}")
+            logger.exception("Unexpected error invoking agent: %s", e)
             return ChatResponse(answer="Ocorreu um erro ao processar sua solicitação.").to_dict()
 
     def _extract_url(self, text: str) -> str | None:

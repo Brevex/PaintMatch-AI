@@ -12,7 +12,9 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 
-from app.core import PROMPTS, PaintData, RAGConfig, settings
+from app.core import PROMPTS, PaintData, RAGBuildError, RAGConfig, get_logger, settings
+
+logger = get_logger(__name__)
 
 
 def format_docs(docs: list) -> str:
@@ -40,7 +42,7 @@ class RAGChainBuilder:
     def _compute_data_hash(self, paints: list[PaintData]) -> str:
         """Computa hash dos dados para detectar mudanças."""
         content = "".join(p.to_document_text() for p in paints)
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.sha256(content.encode()).hexdigest()[:32]
 
     def _get_cache_path(self, data_hash: str) -> Path:
         """Retorna o caminho do cache para um dado hash."""
@@ -68,7 +70,7 @@ class RAGChainBuilder:
             )
 
             if cache_path.exists():
-                print(f"Carregando vector store do cache: {cache_path}")
+                logger.info("Loading vector store from cache: %s", cache_path)
                 from langchain_community.vectorstores import FAISS
 
                 vector_store = FAISS.load_local(
@@ -77,7 +79,7 @@ class RAGChainBuilder:
                     allow_dangerous_deserialization=True,
                 )
             else:
-                print("Construindo novo vector store...")
+                logger.info("Building new vector store...")
                 documents = [paint.to_document_text() for paint in paints]
                 metadatas = [self._paint_to_metadata(paint) for paint in paints]
                 from langchain_community.vectorstores import FAISS
@@ -88,7 +90,7 @@ class RAGChainBuilder:
                     metadatas=metadatas,
                 )
                 vector_store.save_local(str(cache_path))
-                print(f"Vector store salvo em: {cache_path}")
+                logger.info("Vector store saved at: %s", cache_path)
 
             retriever = vector_store.as_retriever()
 
@@ -108,8 +110,11 @@ class RAGChainBuilder:
                 | StrOutputParser()
             )
 
+        except OSError as e:
+            logger.exception("File I/O error with vector store cache: %s", e)
+            raise RAGBuildError(f"Cache file error: {e}") from e
         except Exception as e:
-            print(f"Erro ao criar base vetorial (RAG): {e}")
+            logger.exception("Error creating vector database (RAG): %s", e)
             return None
 
     def _paint_to_metadata(self, paint: PaintData) -> dict:

@@ -15,7 +15,6 @@ import pytest
 
 from app.core import (
     AIConfig,
-    ChatResponse,
     EmbeddingConfig,
     ImageGenerationConfig,
     LLMConfig,
@@ -23,6 +22,7 @@ from app.core import (
     RAGConfig,
 )
 from app.schemas import PaintCreate, UserCreate
+from app.schemas.chat import ChatResponse
 
 # =============================================================================
 # PaintData Fixtures

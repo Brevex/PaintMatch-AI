@@ -8,17 +8,13 @@ repos:
   - repo: meta
     hooks:
       - id: check-useless-excludes
-  # Ruff - extremely fast Python linter and formatter
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.2
     hooks:
-      # Linter
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-      # Formatter (replaces black)
       - id: ruff-format
 
-  # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -32,9 +28,9 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
 
-  # Type checking (optional, runs mypy)
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.13.0
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies: [pydantic, fastapi]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [pydantic, fastapi, types-passlib, types-python-jose]
+        args: [--ignore-missing-imports, --explicit-package-bases]

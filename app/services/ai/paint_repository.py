@@ -5,19 +5,31 @@ Implementa a interface PaintRepository para acesso ao banco de dados.
 """
 
 from sqlalchemy import Engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.core import PaintData
-from app.db import engine as default_engine
+from app.core import PaintData, get_logger
 from app.models import Paint
+
+logger = get_logger(__name__)
 
 
 class SqlAlchemyPaintRepository:
     """Implementação de PaintRepository usando SQLAlchemy."""
 
     def __init__(self, db_engine: Engine | None = None) -> None:
-        """Inicializa o repositório."""
-        self._engine = db_engine or default_engine
+        """
+        Inicializa o repositório.
+
+        Args:
+            db_engine: Engine do SQLAlchemy. Se None, usa a engine padrão.
+        """
+        if db_engine is None:
+            # Lazy import para evitar dependência circular
+            from app.db import engine as default_engine
+
+            db_engine = default_engine
+        self._engine = db_engine
 
     def get_all_paints(self) -> list[PaintData]:
         """Retorna todas as tintas do banco de dados usando SQLAlchemy nativo."""
@@ -41,9 +53,15 @@ class SqlAlchemyPaintRepository:
                     for paint in paints
                 ]
 
+        except SQLAlchemyError as e:
+            logger.warning(
+                "Database error reading 'paints' table: %s",
+                e,
+            )
+            return []
         except Exception as e:
-            print(
-                f"Aviso: Não foi possível ler a tabela 'paints'. "
-                f"O banco de dados pode estar vazio ou a tabela não existe. Erro: {e}"
+            logger.warning(
+                "Unexpected error reading 'paints' table: %s",
+                e,
             )
             return []
