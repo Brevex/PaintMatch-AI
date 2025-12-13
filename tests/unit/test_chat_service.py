@@ -85,7 +85,7 @@ class TestChatServiceGetAIResponse:
 
         # ASSERT
         assert "answer" in result
-        assert "inicializando" in result["answer"] or "vazio" in result["answer"]
+        assert "initializing" in result["answer"] or "empty" in result["answer"]
 
     def test_get_ai_response_handles_agent_exception(self):
         """Failure case: handles exception during agent invocation gracefully."""
@@ -105,7 +105,7 @@ class TestChatServiceGetAIResponse:
 
         # ASSERT
         assert "answer" in result
-        assert "erro" in result["answer"].lower()
+        assert "error" in result["answer"].lower()
 
 
 class TestCreateChatServiceFactory:

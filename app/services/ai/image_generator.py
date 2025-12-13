@@ -1,7 +1,7 @@
 """
-Gerador de imagens usando Gemini Imagen.
+Image Generator using Gemini Imagen.
 
-Responsabilidade única: gerar imagens baseadas em descrições textuais.
+Single responsibility: generate images based on text descriptions.
 """
 
 import uuid
@@ -12,14 +12,14 @@ logger = get_logger(__name__)
 
 
 class GeminiImageGenerator:
-    """Implementação de gerador de imagens usando Gemini Imagen."""
+    """Implementation of image generator using Gemini Imagen."""
 
     def __init__(self, config: ImageGenerationConfig | None = None) -> None:
         """
-        Inicializa o gerador de imagens.
+        Initialize the image generator.
 
         Args:
-            config: Configuração para geração. Usa padrão se não fornecida.
+            config: Generation configuration. Uses default if not provided.
         """
         from google import genai
 
@@ -28,13 +28,13 @@ class GeminiImageGenerator:
 
     def generate(self, description: str) -> str:
         """
-        Gera uma imagem baseada na descrição.
+        Generate an image based on the description.
 
         Args:
-            description: Descrição textual do ambiente/cena
+            description: Textual description of the environment/scene.
 
         Returns:
-            URL da imagem gerada ou mensagem de erro
+            URL of the generated image or error message.
         """
         try:
             logger.info("Generating image with description: %s", description)
@@ -61,17 +61,17 @@ class GeminiImageGenerator:
                     logger.info("Image saved at: %s", image_path)
                     logger.info("Image URL: %s", image_url)
 
-                    return f"Imagem gerada com sucesso! Você pode visualizá-la aqui: {image_url}"
+                    return f"Image generated successfully! You can view it here: {image_url}"
 
-            return "Não foi possível gerar a imagem."
+            return "Could not generate the image."
 
         except OSError as e:
             logger.exception("File I/O error while saving image: %s", e)
             raise ImageGenerationError(f"Failed to save image: {e}") from e
         except Exception as e:
             logger.exception("Error generating image with Gemini: %s", e)
-            return f"Não foi possível gerar a imagem: {e}"
+            return f"Could not generate the image: {e}"
 
     def _build_prompt(self, description: str) -> str:
-        """Constrói o prompt completo para geração."""
+        """Build the complete prompt for generation."""
         return f"{self._config.prompt_prefix} {description}. {self._config.prompt_suffix}"

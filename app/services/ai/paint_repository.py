@@ -1,7 +1,7 @@
 """
-Repositório de tintas usando SQLAlchemy.
+Paint Repository using SQLAlchemy.
 
-Implementa a interface PaintRepository para acesso ao banco de dados.
+Implements PaintRepository interface for database access.
 """
 
 from sqlalchemy import Engine
@@ -15,24 +15,24 @@ logger = get_logger(__name__)
 
 
 class SqlAlchemyPaintRepository:
-    """Implementação de PaintRepository usando SQLAlchemy."""
+    """PaintRepository implementation using SQLAlchemy."""
 
     def __init__(self, db_engine: Engine | None = None) -> None:
         """
-        Inicializa o repositório.
+        Initialize the repository.
 
         Args:
-            db_engine: Engine do SQLAlchemy. Se None, usa a engine padrão.
+            db_engine: SQLAlchemy Engine. If None, uses default engine.
         """
         if db_engine is None:
-            # Lazy import para evitar dependência circular
+            # Lazy import to avoid circular dependency
             from app.db import engine as default_engine
 
             db_engine = default_engine
         self._engine = db_engine
 
     def get_all_paints(self) -> list[PaintData]:
-        """Retorna todas as tintas do banco de dados usando SQLAlchemy nativo."""
+        """Return all paints from the database using native SQLAlchemy."""
         try:
             with Session(self._engine) as session:
                 paints = session.query(Paint).all()

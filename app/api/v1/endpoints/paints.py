@@ -17,7 +17,7 @@ def create_paint(
     current_user: user_schema.User = Depends(deps.get_current_user),
 ):
     """
-    Cria uma nova tinta (requer autenticação).
+    Create a new paint (requires authentication).
     """
     paint = crud_paint.create_paint(db=db, paint=paint_in)
     return paint
@@ -32,7 +32,7 @@ def read_paints(
     current_user: user_schema.User = Depends(deps.get_current_user),
 ):
     """
-    Recupera a lista de tintas (requer autenticação).
+    Retrieve the list of paints (requires authentication).
     """
     paints = crud_paint.get_paints(db, skip=skip, limit=limit)
     return paints

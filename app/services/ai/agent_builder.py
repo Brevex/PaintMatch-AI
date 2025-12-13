@@ -1,8 +1,8 @@
 """
-Construtor do Agente Orquestrador.
+Orchestrator Agent Builder.
 
-Responsabilidade única: construir e configurar o agente
-que orquestra as ferramentas de recomendação e geração de imagens.
+Single responsibility: Build and configure the agent
+that orchestrates the recommendation and image generation tools.
 """
 
 from __future__ import annotations
@@ -21,14 +21,14 @@ logger = get_logger(__name__)
 
 
 class AgentBuilder:
-    """Construtor do agente orquestrador."""
+    """Orchestrator agent builder."""
 
     def __init__(self, config: LLMConfig | None = None) -> None:
         """
-        Inicializa o construtor.
+        Initialize the builder.
 
         Args:
-            config: Configuração do LLM do agente. Usa padrão se não fornecida.
+            config: Agent LLM configuration. Uses default if not provided.
         """
         self._config = config or LLMConfig()
 
@@ -38,14 +38,14 @@ class AgentBuilder:
         image_generator_func: Callable[[str], str],
     ) -> AgentExecutor | None:
         """
-        Constrói o agente orquestrador com as ferramentas.
+        Build the orchestrator agent with tools.
 
         Args:
-            rag_chain_invoke: Função para invocar a RAG chain
-            image_generator_func: Função para gerar imagens
+            rag_chain_invoke: Function to invoke the RAG chain.
+            image_generator_func: Function to generate images.
 
         Returns:
-            AgentExecutor configurado, ou None se não for possível
+            Configured AgentExecutor, or None if not possible.
         """
         if rag_chain_invoke is None:
             logger.warning("RAG chain not available. Agent cannot be built.")
@@ -56,7 +56,6 @@ class AgentBuilder:
         from langchain_classic.agents import AgentExecutor, create_react_agent
         from langchain_core.prompts import PromptTemplate
 
-        # Prompt ReAct padrão (hwchase17/react)
         react_template = """Answer the following questions as best you can. You have access to the following tools:
 
 {tools}
@@ -88,24 +87,24 @@ Thought:{agent_scratchpad}"""
         rag_chain_invoke: Callable[[str], str],
         image_generator_func: Callable[[str], str],
     ) -> list[Tool]:
-        """Cria a lista de ferramentas do agente."""
+        """Create the list of tools for the agent."""
         from langchain_core.tools import Tool
 
         return [
             Tool(
-                name="RecomendadorDeTintas",
+                name="PaintRecommender",
                 func=rag_chain_invoke,
                 description=PROMPTS.PAINT_RECOMMENDER_DESCRIPTION,
             ),
             Tool(
-                name="GeradorDeImagemDeAmbiente",
+                name="RoomImageGenerator",
                 func=image_generator_func,
                 description=PROMPTS.IMAGE_GENERATOR_DESCRIPTION,
             ),
         ]
 
     def _create_llm(self) -> ChatGoogleGenerativeAI:
-        """Cria a instância do LLM do agente."""
+        """Create the agent LLM instance."""
         from langchain_google_genai import ChatGoogleGenerativeAI
 
         return ChatGoogleGenerativeAI(

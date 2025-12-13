@@ -37,11 +37,11 @@ class TestFormatDocs:
         result = format_docs(docs)
 
         # ASSERT
-        assert "Nome da Tinta: Suvinil Acrílico" in result
-        assert "Cor: Branco" in result
-        assert "Características: Lavável" in result
-        assert "Ambiente: Interno" in result
-        assert "Acabamento: Fosco" in result
+        assert "Paint Name: Suvinil Acrílico" in result
+        assert "Color: Branco" in result
+        assert "Features: Lavável" in result
+        assert "Environment: Interno" in result
+        assert "Finish: Fosco" in result
 
     def test_format_docs_handles_missing_metadata(self):
         """Edge case: handles missing metadata fields with N/A."""
@@ -57,8 +57,8 @@ class TestFormatDocs:
         result = format_docs(docs)
 
         # ASSERT
-        assert "Nome da Tinta: N/A" in result
-        assert "Cor: N/A" in result
+        assert "Paint Name: N/A" in result
+        assert "Color: N/A" in result
 
     def test_format_docs_multiple_documents(self):
         """Test formatting multiple documents with separator."""

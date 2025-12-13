@@ -1,8 +1,8 @@
 """
-Construtor da RAG Chain.
+RAG Chain Builder.
 
-Responsabilidade única: construir e configurar a cadeia RAG
-para recuperação e geração de recomendações de tintas.
+Single responsibility: build and configure the RAG chain
+for retrieval and generation of paint recommendations.
 """
 
 import hashlib
@@ -18,42 +18,42 @@ logger = get_logger(__name__)
 
 
 def format_docs(docs: list) -> str:
-    """Formata os documentos recuperados para serem enviados ao prompt."""
+    """Format retrieved documents to be sent to the prompt."""
     return "\n\n".join(
-        f"Nome da Tinta: {doc.metadata.get('name', 'N/A')}\n"
-        f"Cor: {doc.metadata.get('color', 'N/A')}\n"
-        f"Características: {doc.metadata.get('features', 'N/A')}\n"
-        f"Ambiente: {doc.metadata.get('environment', 'N/A')}\n"
-        f"Acabamento: {doc.metadata.get('finish_type', 'N/A')}"
+        f"Paint Name: {doc.metadata.get('name', 'N/A')}\n"
+        f"Color: {doc.metadata.get('color', 'N/A')}\n"
+        f"Features: {doc.metadata.get('features', 'N/A')}\n"
+        f"Environment: {doc.metadata.get('environment', 'N/A')}\n"
+        f"Finish: {doc.metadata.get('finish_type', 'N/A')}"
         for doc in docs
     )
 
 
 class RAGChainBuilder:
-    """Construtor de cadeias RAG para recomendação de tintas."""
+    """Builder for RAG chains for paint recommendation."""
 
     CACHE_DIR = Path(__file__).parent.parent.parent / "data" / "vector_cache"
 
     def __init__(self, config: RAGConfig | None = None) -> None:
-        """Inicializa o construtor com cache de vector store."""
+        """Initialize builder with vector store cache."""
         self._config = config or RAGConfig.default()
         self.CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     def _compute_data_hash(self, paints: list[PaintData]) -> str:
-        """Computa hash dos dados para detectar mudanças."""
+        """Compute data hash to detect changes."""
         content = "".join(p.to_document_text() for p in paints)
         return hashlib.sha256(content.encode()).hexdigest()[:32]
 
     def _get_cache_path(self, data_hash: str) -> Path:
-        """Retorna o caminho do cache para um dado hash."""
+        """Return cache path for a given hash."""
         return self.CACHE_DIR / f"faiss_index_{data_hash}"
 
     def build(self, paints: list[PaintData]) -> object | None:
         """
-        Constrói a cadeia RAG a partir dos dados de tintas.
+        Build the RAG chain from paint data.
 
-        Utiliza cache em disco para evitar reconstrução do vector store
-        quando os dados não mudaram.
+        Uses disk cache to avoid rebuilding the vector store
+        when data has not changed.
         """
         if not paints:
             return None
@@ -117,8 +117,9 @@ class RAGChainBuilder:
             logger.exception("Error creating vector database (RAG): %s", e)
             return None
 
-    def _paint_to_metadata(self, paint: PaintData) -> dict:
-        """Converte PaintData para dicionário de metadados."""
+    @staticmethod
+    def _paint_to_metadata(paint: PaintData) -> dict:
+        """Convert PaintData to metadata dictionary."""
         return {
             "name": paint.name,
             "color": paint.color,

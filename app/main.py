@@ -1,4 +1,4 @@
-"""Ponto de entrada principal da aplicação FastAPI."""
+"""Main entry point for the FastAPI application."""
 
 from contextlib import asynccontextmanager
 
@@ -15,10 +15,10 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Lifespan handler para inicialização e shutdown da aplicação.
+    Lifespan handler for application startup and shutdown.
 
-    Pre-warms o agente de chat ao iniciar para evitar latência
-    na primeira requisição do usuário.
+    Pre-warms the chat agent on startup to avoid latency
+    on the first user request.
     """
     logger.info("Starting application lifespan...")
 
@@ -37,8 +37,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Catálogo Inteligente de Tintas com IA",
-    description="API para um assistente virtual especialista em tintas Suvinil.",
+    title="Intelligent Paint Catalog with AI",
+    description="API for a virtual assistant expert in Suvinil paints.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -53,5 +53,5 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])
 
 @app.get("/")
 def read_root():
-    """Endpoint raiz que retorna uma mensagem de boas-vindas."""
-    return {"message": "Bem-vindo ao Catálogo Inteligente de Tintas Suvinil!"}
+    """Root endpoint returning a welcome message."""
+    return {"message": "Welcome to the Intelligent Paint Catalog!"}

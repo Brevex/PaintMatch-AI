@@ -18,8 +18,8 @@ def ask_question(
     query: chat_schema.ChatQuery,
 ):
     """
-    Endpoint para enviar perguntas ao assistente de IA (requer autenticação).
-    Pode retornar uma URL de imagem se uma simulação visual for solicitada.
+    Endpoint to send questions to the AI assistant (requires authentication).
+    May return an image URL if a visual simulation is requested.
     """
     try:
         response_data = chat_service.get_ai_response(query.question)
@@ -28,11 +28,11 @@ def ask_question(
         logger.error("AI service error: %s", e)
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="O serviço de IA está temporariamente indisponível. Tente novamente.",
+            detail="The AI service is temporarily unavailable. Please try again.",
         ) from e
     except Exception as e:
         logger.exception("Unexpected error in chat endpoint: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ocorreu um erro interno. Por favor, tente novamente.",
+            detail="An internal error occurred. Please try again.",
         ) from e

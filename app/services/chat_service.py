@@ -1,8 +1,8 @@
 """
-Serviço de Chat - Fachada Principal.
+Chat Service - Main Facade.
 
-Orquestra os componentes de IA para fornecer respostas contextuais
-sobre tintas e gerar visualizações quando solicitado.
+Orchestrates AI components to provide contextual answers
+about paints and generate visualizations when requested.
 """
 
 import re
@@ -29,10 +29,10 @@ logger = get_logger(__name__)
 
 class ChatService:
     """
-    Serviço principal de chat com IA.
+    Main AI chat service.
 
-    Atua como fachada, delegando responsabilidades específicas
-    para componentes especializados.
+    Acts as a facade, delegating specific responsibilities
+    to specialized components.
     """
 
     def __init__(
@@ -41,7 +41,7 @@ class ChatService:
         paint_repository: PaintRepository | None = None,
         image_generator: ImageGenerator | None = None,
     ) -> None:
-        """Inicializa o serviço de chat."""
+        """Initialize the chat service."""
         logger.info("Initializing ChatService with Gemini Agent...")
 
         self._config = config or DEFAULT_AI_CONFIG
@@ -56,13 +56,13 @@ class ChatService:
 
     @property
     def agent_executor(self):
-        """Acesso lazy ao executor do agente."""
+        """Lazy access to the agent executor."""
         if self._agent_executor is None:
             self._agent_executor = self._build_agent()
         return self._agent_executor
 
     def _build_agent(self):
-        """Constrói o agente usando os componentes modulares."""
+        """Build the agent using modular components."""
         paints = self._paint_repository.get_all_paints()
 
         if not paints:
@@ -81,21 +81,21 @@ class ChatService:
         )
 
     def get_ai_response(self, query: str) -> dict:
-        """Processa uma consulta e retorna a resposta do assistente."""
+        """Process a query and return the assistant's response."""
         if not self.agent_executor:
             self._agent_executor = self._build_agent()
             if not self.agent_executor:
                 return ChatResponse(
                     answer=(
-                        "O sistema de IA está inicializando ou o banco de dados "
-                        "de tintas está vazio. Por favor, tente novamente mais "
-                        "tarde ou contate o administrador."
+                        "The AI system is initializing or the paint database "
+                        "is empty. Please try again later "
+                        "or contact the administrator."
                     )
                 ).to_dict()
 
         try:
             response = self.agent_executor.invoke({"input": query})
-            output_text = response.get("output", "Não consegui processar sua solicitação.")
+            output_text = response.get("output", "I could not process your request.")
 
             image_url = self._extract_url(output_text)
 
@@ -105,17 +105,18 @@ class ChatService:
             raise
         except (KeyError, ValueError, TypeError) as e:
             logger.exception("Data processing error: %s", e)
-            return ChatResponse(answer="Erro ao processar os dados da resposta.").to_dict()
+            return ChatResponse(answer="Error processing response data.").to_dict()
         except Exception as e:
             logger.exception("Unexpected error invoking agent: %s", e)
-            return ChatResponse(answer="Ocorreu um erro ao processar sua solicitação.").to_dict()
+            return ChatResponse(answer="An error occurred while processing your request.").to_dict()
 
-    def _extract_url(self, text: str) -> str | None:
-        """Extrai URL de uma resposta, se presente."""
+    @staticmethod
+    def _extract_url(text: str) -> str | None:
+        """Extract URL from response, if present."""
         match = _URL_PATTERN.search(text)
         return match.group(0) if match else None
 
 
 def create_chat_service(config: AIConfig | None = None) -> ChatService:
-    """Factory function para criar instâncias de ChatService."""
+    """Factory function to create ChatService instances."""
     return ChatService(config=config)

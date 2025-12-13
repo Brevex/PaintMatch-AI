@@ -32,7 +32,7 @@ build/
 *.egg-info
 
 docker-compose*.yml
-dockerfile
+Dockerfile
 
 app/data/vector_cache/
 .mypy_cache/

@@ -1,4 +1,4 @@
-"""Script para carregar dados de tintas do CSV para o banco de dados."""
+"""Script to load paint data from CSV to the database."""
 
 import os
 import sys
@@ -13,10 +13,10 @@ from app.models.paint import Paint
 
 
 def load_data_from_csv(db: Session, csv_path: str):
-    """Lê dados de um arquivo CSV e os insere na tabela de tintas usando bulk insert."""
+    """Read data from a CSV file and insert into the paints table using bulk insert."""
     try:
         df = pd.read_csv(csv_path)
-        print(f"Lendo {len(df)} registros do arquivo CSV...")
+        print(f"Reading {len(df)} records from CSV file...")
 
         existing_names = {name for (name,) in db.query(Paint.name).all()}
 
@@ -36,19 +36,19 @@ def load_data_from_csv(db: Session, csv_path: str):
                     )
                 )
             else:
-                print(f"Tinta '{name}' já existe. Pulando.")
+                print(f"Paint '{name}' already exists. Skipping.")
 
         if new_paints:
             db.bulk_save_objects(new_paints)
             db.commit()
-            print(f"Inseridos {len(new_paints)} registros novos!")
+            print(f"Inserted {len(new_paints)} new records!")
         else:
-            print("Nenhum registro novo para inserir.")
+            print("No new records to insert.")
 
     except FileNotFoundError:
-        print(f"Erro: O arquivo {csv_path} não foi encontrado.")
+        print(f"Error: The file {csv_path} was not found.")
     except Exception as e:
-        print(f"Ocorreu um erro: {e}")
+        print(f"An error occurred: {e}")
         db.rollback()
 
 

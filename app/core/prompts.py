@@ -1,8 +1,8 @@
 """
-Templates de prompts centralizados.
+Centralized prompt templates.
 
-Este módulo externaliza todos os prompts utilizados pelo sistema,
-facilitando manutenção, testes e eventual internacionalização.
+This module externalizes all prompts used by the system,
+facilitating maintenance, testing, and eventual internationalization.
 """
 
 from dataclasses import dataclass
@@ -10,28 +10,28 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class PromptTemplates:
-    """Templates de prompts para o sistema de chat."""
+    """Prompt templates for the chat system."""
 
-    AGENT_SYSTEM_PROMPT: str = """Você é Suvi, um assistente especialista em tintas Suvinil.
-Seu objetivo é ajudar os usuários a escolher a tinta perfeita.
-1. Sempre use a ferramenta 'RecomendadorDeTintas' PRIMEIRO para encontrar a tinta ideal.
-2. Se o usuário pedir para ver como ficaria, use a ferramenta 'GeradorDeImagemDeAmbiente' DEPOIS.
-3. Sua resposta final deve ser amigável e combinar o texto da recomendação com a mensagem da imagem."""
+    AGENT_SYSTEM_PROMPT: str = """You are Suvi, an expert assistant on Suvinil paints.
+Your goal is to help users choose the perfect paint.
+1. Always use the 'PaintRecommender' tool FIRST to find the ideal paint.
+2. If the user asks to see how it would look, use the 'RoomImageGenerator' tool AFTERWARDS.
+3. Your final answer should be friendly and combine the recommendation text with the image message."""
 
-    RAG_TEMPLATE: str = """Você é um especialista em tintas Suvinil. Responda à pergunta do usuário baseando-se SOMENTE no contexto fornecido.
-Seja amigável e recomende a melhor tinta.
-Contexto: {context}
-Pergunta: {question}
-Resposta:"""
+    RAG_TEMPLATE: str = """You are an expert on Suvinil paints. Answer the user's question based ONLY on the provided context.
+Be friendly and recommend the best paint.
+Context: {context}
+Question: {question}
+Answer:"""
 
-    PAINT_RECOMMENDER_DESCRIPTION: str = """Use esta ferramenta para responder perguntas sobre tintas,
-recomendar produtos ou encontrar a melhor tinta para uma situação específica.
-Esta deve ser sempre sua primeira escolha."""
+    PAINT_RECOMMENDER_DESCRIPTION: str = """Use this tool to answer questions about paints,
+recommend products, or find the best paint for a specific situation.
+This should always be your first choice."""
 
-    IMAGE_GENERATOR_DESCRIPTION: str = """Use esta ferramenta APENAS se o usuário pedir explicitamente para
-ver uma simulação visual, como 'mostre como ficaria' ou 'gere uma imagem'.
-O input para esta ferramenta deve ser uma descrição detalhada do ambiente
-e da cor da tinta recomendada pela outra ferramenta."""
+    IMAGE_GENERATOR_DESCRIPTION: str = """Use this tool ONLY if the user explicitly asks to
+see a visual simulation, like 'show how it would look' or 'generate an image'.
+The input for this tool must be a detailed description of the environment
+and the paint color recommended by the other tool."""
 
 
 PROMPTS = PromptTemplates()

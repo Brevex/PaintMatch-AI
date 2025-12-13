@@ -11,14 +11,14 @@ from app.models.user import User  # noqa: F401
 
 def create_database_tables():
     """
-    Cria todas as tabelas no banco de dados definidas nos modelos.
+    Create all tables in the database defined in the models.
     """
-    print("Iniciando a criação das tabelas no banco de dados...")
+    print("Starting database table creation...")
     try:
         Base.metadata.create_all(bind=engine)
-        print("Tabelas 'users' e 'paints' criadas com sucesso!")
+        print("Tables 'users' and 'paints' created successfully!")
     except Exception as e:
-        print(f"Ocorreu um erro ao criar as tabelas: {e}")
+        print(f"An error occurred while creating tables: {e}")
 
 
 if __name__ == "__main__":
